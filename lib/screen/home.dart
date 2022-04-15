@@ -83,11 +83,28 @@ class _HomeState extends State<Home> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('New Task'),
-                content: TextField(
-                  onChanged: (String value) {
-                    input = value;
-                  },
+                contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+                title: const Text(
+                  'New Task',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 81, 199, 128),
+                  ),
+                ),
+                content: Material(
+                  borderRadius: BorderRadius.circular(3),
+                  elevation: 3,
+                  child: TextField(
+                    onChanged: (String value) {
+                      input = value;
+                    },
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'task...',
+                    ),
+                  ),
                 ),
                 actions: <Widget>[
                   FlatButton(
@@ -97,7 +114,13 @@ class _HomeState extends State<Home> {
                       });
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Add'),
+                    child: const Text(
+                      'Add',
+                      style: TextStyle(
+                        color: Color.fromARGB(246, 81, 199, 128),
+                        fontSize: 16,
+                      ),
+                    ),
                   )
                 ],
               );
