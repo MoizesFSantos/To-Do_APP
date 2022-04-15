@@ -6,56 +6,44 @@ class Tasks extends StatefulWidget {
 }
 
 class _TasksState extends State<Tasks> {
-  final todos = List<String>.generate(20, (index) => 'Item ${index + 1}');
+  var todos = [];
+
   @override
   void initState() {
     super.initState();
+    todos.add('Item1');
+    todos.add('Item2');
+    todos.add('Item3');
+    todos.add('Item4');
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: todos.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Dismissible(
-            onDismissed: (direction) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${todos[index]} dismissed')));
-            },
-            key: Key(todos[index]),
-            child: Card(
-              elevation: 3,
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(todos[index]),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: const [
-                      Text(
-                        'Priority: 03',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 15,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 50,
-                      ),
-                      Text(
-                        '29/05/2021',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 15,
-                        ),
-                      )
-                    ],
-                  )
-                ],
+      itemCount: todos.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Dismissible(
+          key: Key(todos[index]),
+          child: Card(
+            elevation: 5,
+            child: ListTile(
+              title: Text(todos[index]),
+              subtitle: const Text('test'),
+              trailing: IconButton(
+                icon: const Icon(
+                  Icons.check,
+                  color: Color.fromARGB(246, 81, 199, 128),
+                ),
+                onPressed: () {
+                  setState(() {
+                    todos.removeAt(index);
+                  });
+                },
               ),
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 }

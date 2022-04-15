@@ -57,7 +57,7 @@ class _HomeState extends State<Home> {
             return Dismissible(
               key: Key(todos[index]),
               child: Card(
-                elevation: 3,
+                elevation: 5,
                 child: ListTile(
                   title: Text(todos[index]),
                   subtitle: const Text('test'),
