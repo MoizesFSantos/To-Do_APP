@@ -1,14 +1,29 @@
+final String tableTask = 'task';
+final String columnId = '_id';
+final String columnTitle = 'title';
+final String columnDone = 'done';
+
 class Task {
-  final int id;
-  final String task;
+  int id;
+  String title;
+  bool done;
 
-  Task(
-    this.id,
-    this.task,
-  );
+  Map<String, Object> toMap() {
+    var map = <String, Object>{
+      columnTitle: title,
+      columnDone: done == true ? 1 : 0
+    };
+    if (id != null) {
+      map[columnId] = id;
+    }
+    return map;
+  }
 
-  @override
-  String toString() {
-    return 'Task{id: $id, task: $task}';
+  Task();
+
+  Task.fromMap(Map<String, Object> map) {
+    id = map[columnId];
+    title = map[columnTitle];
+    done = map[columnDone] == 1;
   }
 }

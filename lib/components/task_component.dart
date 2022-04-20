@@ -1,49 +1,28 @@
 import 'package:flutter/material.dart';
 
-class Tasks extends StatefulWidget {
-  @override
-  _TasksState createState() => _TasksState();
-}
+import '../models/task.dart';
 
-class _TasksState extends State<Tasks> {
-  var todos = [];
-
-  @override
-  void initState() {
-    super.initState();
-    todos.add('Item1');
-    todos.add('Item2');
-    todos.add('Item3');
-    todos.add('Item4');
-  }
+class TaskItem extends StatelessWidget {
+  final Task task;
+  TaskItem(this.task, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: todos.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Dismissible(
-          key: Key(todos[index]),
-          child: Card(
-            elevation: 5,
-            child: ListTile(
-              title: Text(todos[index]),
-              subtitle: const Text('test'),
-              trailing: IconButton(
-                icon: const Icon(
-                  Icons.check,
-                  color: Color.fromARGB(246, 81, 199, 128),
-                ),
-                onPressed: () {
-                  setState(() {
-                    todos.removeAt(index);
-                  });
-                },
-              ),
-            ),
+    return Card(
+      elevation: 5,
+      child: ListTile(
+        title: Text(task.title),
+        subtitle: const Text('test'),
+        trailing: IconButton(
+          icon: const Icon(
+            Icons.check,
+            color: Color.fromARGB(246, 81, 199, 128),
           ),
-        );
-      },
+          onPressed: () {
+            _dao.delete(task);
+          },
+        ),
+      ),
     );
   }
 }

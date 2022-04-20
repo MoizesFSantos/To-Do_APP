@@ -2,26 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:to_do/components/task_component.dart';
+import '../database/dao/task_dao.dart';
+import '../models/task.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({Key key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  var todos = [];
-  String input = "";
-
-  @override
-  void initState() {
-    super.initState();
-    todos.add('Item1');
-    todos.add('Item2');
-    todos.add('Item3');
-    todos.add('Item4');
-  }
+  final TaskDao _dao = TaskDao();
+  final TextEditingController _taskController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -51,34 +44,45 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
-      body: ListView.builder(
-          itemCount: todos.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Dismissible(
-              key: Key(todos[index]),
-              child: Card(
-                elevation: 5,
-                child: ListTile(
-                  title: Text(todos[index]),
-                  subtitle: const Text('test'),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.check,
-                      color: Color.fromARGB(246, 81, 199, 128),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        todos.removeAt(index);
-                      });
-                    },
-                  ),
+      body: FutureBuilder<List<Task>>(
+        initialData: List(),
+        future: _dao.findAll(),
+        // ignore: missing_return
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              break;
+            case ConnectionState.waiting:
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const <Widget>[
+                    CircularProgressIndicator(),
+                    Text('Loading')
+                  ],
                 ),
-              ),
-            );
-          }),
+              );
+              break;
+            case ConnectionState.active:
+              break;
+            case ConnectionState.done:
+              final List<Task> tasks = snapshot.data;
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  final Task task = tasks[index];
+                  return TaskItem(task);
+                },
+                itemCount: tasks.length,
+              );
+              break;
+          }
+          return Text('Unknown error');
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color.fromARGB(246, 81, 199, 128),
-        onPressed: () => {
+        onPressed: () {
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -95,9 +99,7 @@ class _HomeState extends State<Home> {
                   borderRadius: BorderRadius.circular(3),
                   elevation: 3,
                   child: TextField(
-                    onChanged: (String value) {
-                      input = value;
-                    },
+                    controller: _taskController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       filled: true,
@@ -109,10 +111,9 @@ class _HomeState extends State<Home> {
                 actions: <Widget>[
                   FlatButton(
                     onPressed: () {
-                      setState(() {
-                        todos.add(input);
-                      });
-                      Navigator.of(context).pop();
+                      final String task = _taskController.text;
+                      final Task newTask = Task(0, task);
+                      _dao.save(newTask).then((id) => Navigator.pop(context));
                     },
                     child: const Text(
                       'Add',
@@ -125,7 +126,7 @@ class _HomeState extends State<Home> {
                 ],
               );
             },
-          )
+          );
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
