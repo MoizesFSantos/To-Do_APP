@@ -8,6 +8,15 @@ class Task {
   String title;
   bool done;
 
+  taskMap() {
+    var mapping = Map<String, dynamic>();
+    mapping['id'] = id;
+    mapping['title'] = title;
+    mapping['done'] = done;
+
+    return mapping;
+  }
+
   Map<String, Object> toMap() {
     var map = <String, Object>{
       columnTitle: title,

@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:to_do/components/task_component.dart';
-import '../database/dao/task_dao.dart';
+import 'package:to_do/database/app_database.dart';
+import 'package:to_do/service/task_service.dart';
 import '../models/task.dart';
 
 class Home extends StatefulWidget {
@@ -13,8 +14,35 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final TaskDao _dao = TaskDao();
-  final TextEditingController _taskController = TextEditingController();
+  var taskObject = Task();
+  var task;
+
+  final TextEditingController _taskTitleController = TextEditingController();
+
+  TaskService _taskService;
+
+  List<Task> _taskList = List<Task>();
+
+  @override
+  initState() {
+    super.initState();
+    getAllTasks();
+  }
+
+  getAllTasks() async {
+    _taskService = TaskService();
+    _taskList = List<Task>();
+
+    var tasks = await _taskService.readTasks();
+    tasks.forEach((task) {
+      setState(() {
+        var model = Task();
+        model.id = task['id'];
+        model.title = task['title'];
+        _taskList.add(model);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,41 +72,30 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
-      body: FutureBuilder<List<Task>>(
-        initialData: List(),
-        future: _dao.findAll(),
-        // ignore: missing_return
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              break;
-            case ConnectionState.waiting:
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const <Widget>[
-                    CircularProgressIndicator(),
-                    Text('Loading')
-                  ],
+      body: ListView.builder(
+        itemBuilder: (context, index) {
+          return Card(
+            elevation: 5,
+            child: ListTile(
+              title: Text(_taskList[index].title ?? 'no Title'),
+              subtitle: const Text('test'),
+              trailing: IconButton(
+                icon: const Icon(
+                  Icons.check,
+                  color: Color.fromARGB(246, 81, 199, 128),
                 ),
-              );
-              break;
-            case ConnectionState.active:
-              break;
-            case ConnectionState.done:
-              final List<Task> tasks = snapshot.data;
-              return ListView.builder(
-                itemBuilder: (context, index) {
-                  final Task task = tasks[index];
-                  return TaskItem(task);
+                onPressed: () async {
+                  var result =
+                      await _taskService.deleteTask(_taskList[index].id);
+                  if (result > 0) {
+                    getAllTasks();
+                  }
                 },
-                itemCount: tasks.length,
-              );
-              break;
-          }
-          return Text('Unknown error');
+              ),
+            ),
+          );
         },
+        itemCount: _taskList.length,
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color.fromARGB(246, 81, 199, 128),
@@ -99,7 +116,7 @@ class _HomeState extends State<Home> {
                   borderRadius: BorderRadius.circular(3),
                   elevation: 3,
                   child: TextField(
-                    controller: _taskController,
+                    controller: _taskTitleController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       filled: true,
@@ -110,10 +127,16 @@ class _HomeState extends State<Home> {
                 ),
                 actions: <Widget>[
                   FlatButton(
-                    onPressed: () {
-                      final String task = _taskController.text;
-                      final Task newTask = Task(0, task);
-                      _dao.save(newTask).then((id) => Navigator.pop(context));
+                    onPressed: () async {
+                      taskObject.title = _taskTitleController.text;
+                      taskObject.done = false;
+                      var _taskService = TaskService();
+                      var result = await _taskService.saveTask(taskObject);
+                      if (result > 0) {
+                        print(result);
+                        Navigator.pop(context);
+                        getAllTasks();
+                      }
                     },
                     child: const Text(
                       'Add',
