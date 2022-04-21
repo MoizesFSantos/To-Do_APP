@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use, prefer_collection_literals
 
 import 'package:flutter/material.dart';
-import 'package:to_do/components/task_component.dart';
 import 'package:to_do/database/app_database.dart';
 import 'package:to_do/service/task_service.dart';
 import '../models/task.dart';
