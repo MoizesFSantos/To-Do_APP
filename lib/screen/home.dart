@@ -1,26 +1,46 @@
 // ignore_for_file: deprecated_member_use, prefer_collection_literals
 
 import 'package:flutter/material.dart';
-import 'package:to_do/components/task_component.dart';
+import 'package:to_do/database/app_database.dart';
+import 'package:to_do/service/task_service.dart';
+import '../models/task.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({Key key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  var todos = [];
-  String input = "";
+  var taskObject = Task();
+  var task;
+
+  final TextEditingController _taskTitleController = TextEditingController();
+
+  TaskService _taskService;
+
+  List<Task> _taskList = List<Task>();
 
   @override
-  void initState() {
+  initState() {
     super.initState();
-    todos.add('Item1');
-    todos.add('Item2');
-    todos.add('Item3');
-    todos.add('Item4');
+    getAllTasks();
+  }
+
+  getAllTasks() async {
+    _taskService = TaskService();
+    _taskList = List<Task>();
+
+    var tasks = await _taskService.readTasks();
+    tasks.forEach((task) {
+      setState(() {
+        var model = Task();
+        model.id = task['id'];
+        model.title = task['title'];
+        _taskList.add(model);
+      });
+    });
   }
 
   @override
@@ -52,33 +72,40 @@ class _HomeState extends State<Home> {
         elevation: 0.0,
       ),
       body: ListView.builder(
-          itemCount: todos.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Dismissible(
-              key: Key(todos[index]),
-              child: Card(
-                elevation: 5,
-                child: ListTile(
-                  title: Text(todos[index]),
-                  subtitle: const Text('test'),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.check,
-                      color: Color.fromARGB(246, 81, 199, 128),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        todos.removeAt(index);
-                      });
-                    },
+        itemBuilder: (context, index) {
+          return Dismissible(
+            onDismissed: (direction) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${_taskList[index].title} is done')));
+            },
+            key: Key(_taskList[index].title),
+            child: Card(
+              elevation: 5,
+              child: ListTile(
+                title: Text(_taskList[index].title ?? 'no Title'),
+                subtitle: const Text('test'),
+                trailing: IconButton(
+                  icon: const Icon(
+                    Icons.check,
+                    color: Color.fromARGB(246, 81, 199, 128),
                   ),
+                  onPressed: () async {
+                    var result =
+                        await _taskService.deleteTask(_taskList[index].id);
+                    if (result > 0) {
+                      getAllTasks();
+                    }
+                  },
                 ),
               ),
-            );
-          }),
+            ),
+          );
+        },
+        itemCount: _taskList.length,
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color.fromARGB(246, 81, 199, 128),
-        onPressed: () => {
+        onPressed: () {
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -95,9 +122,7 @@ class _HomeState extends State<Home> {
                   borderRadius: BorderRadius.circular(3),
                   elevation: 3,
                   child: TextField(
-                    onChanged: (String value) {
-                      input = value;
-                    },
+                    controller: _taskTitleController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       filled: true,
@@ -108,11 +133,16 @@ class _HomeState extends State<Home> {
                 ),
                 actions: <Widget>[
                   FlatButton(
-                    onPressed: () {
-                      setState(() {
-                        todos.add(input);
-                      });
-                      Navigator.of(context).pop();
+                    onPressed: () async {
+                      taskObject.title = _taskTitleController.text;
+                      taskObject.done = false;
+                      var _taskService = TaskService();
+                      var result = await _taskService.saveTask(taskObject);
+                      if (result > 0) {
+                        print(result);
+                        Navigator.pop(context);
+                        getAllTasks();
+                      }
                     },
                     child: const Text(
                       'Add',
@@ -125,7 +155,7 @@ class _HomeState extends State<Home> {
                 ],
               );
             },
-          )
+          );
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
