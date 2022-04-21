@@ -74,23 +74,30 @@ class _HomeState extends State<Home> {
       ),
       body: ListView.builder(
         itemBuilder: (context, index) {
-          return Card(
-            elevation: 5,
-            child: ListTile(
-              title: Text(_taskList[index].title ?? 'no Title'),
-              subtitle: const Text('test'),
-              trailing: IconButton(
-                icon: const Icon(
-                  Icons.check,
-                  color: Color.fromARGB(246, 81, 199, 128),
+          return Dismissible(
+            onDismissed: (direction) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${_taskList[index].title} is done')));
+            },
+            key: Key(_taskList[index].title),
+            child: Card(
+              elevation: 5,
+              child: ListTile(
+                title: Text(_taskList[index].title ?? 'no Title'),
+                subtitle: const Text('test'),
+                trailing: IconButton(
+                  icon: const Icon(
+                    Icons.check,
+                    color: Color.fromARGB(246, 81, 199, 128),
+                  ),
+                  onPressed: () async {
+                    var result =
+                        await _taskService.deleteTask(_taskList[index].id);
+                    if (result > 0) {
+                      getAllTasks();
+                    }
+                  },
                 ),
-                onPressed: () async {
-                  var result =
-                      await _taskService.deleteTask(_taskList[index].id);
-                  if (result > 0) {
-                    getAllTasks();
-                  }
-                },
               ),
             ),
           );
