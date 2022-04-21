@@ -9,6 +9,78 @@ class Categories extends StatefulWidget {
 }
 
 class _CategoriesState extends State<Categories> {
+  _showFormDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+            title: const Text(
+              'New Category',
+              style: TextStyle(
+                color: Color.fromARGB(246, 81, 199, 128),
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Material(
+                    borderRadius: BorderRadius.circular(3),
+                    elevation: 3,
+                    child: const TextField(
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Category',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  Material(
+                    borderRadius: BorderRadius.circular(3),
+                    elevation: 3,
+                    child: const TextField(
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Description',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 110, 110, 110),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {},
+                child: const Text(
+                  'Save',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 81, 199, 128),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,6 +110,13 @@ class _CategoriesState extends State<Categories> {
         elevation: 0.0,
       ),
       body: Center(),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(246, 81, 199, 128),
+        child: const Icon(Icons.add),
+        onPressed: () {
+          _showFormDialog(context);
+        },
+      ),
     );
   }
 }
