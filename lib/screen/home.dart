@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, prefer_collection_literals
 
 import 'package:flutter/material.dart';
+import 'package:to_do/components/drawer_menu.dart';
 import 'package:to_do/database/app_database.dart';
 import 'package:to_do/service/task_service.dart';
 import '../models/task.dart';
@@ -47,7 +48,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(230, 253, 252, 252),
-      drawer: const Drawer(),
+      drawer: DrawerMenu(),
       appBar: AppBar(
         leading: Builder(
           builder: (BuildContext context) {
