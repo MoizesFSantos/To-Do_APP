@@ -27,7 +27,7 @@ class DrawerMenu extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(
-              Icons.category_rounded,
+              Icons.view_list,
               color: Color.fromARGB(213, 81, 199, 128),
             ),
             title: const Text(

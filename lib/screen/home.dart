@@ -132,23 +132,26 @@ class _HomeState extends State<Home> {
                   SnackBar(content: Text('${_taskList[index].title} is done')));
             },
             key: Key(_taskList[index].title),
-            child: Card(
-              elevation: 5,
-              child: ListTile(
-                title: Text(_taskList[index].title ?? 'no Title'),
-                subtitle: const Text('test'),
-                trailing: IconButton(
-                  icon: const Icon(
-                    Icons.check,
-                    color: Color.fromARGB(246, 81, 199, 128),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+              child: Card(
+                elevation: 6.0,
+                child: ListTile(
+                  title: Text(_taskList[index].title ?? 'no Title'),
+                  subtitle: const Text('test'),
+                  trailing: IconButton(
+                    icon: const Icon(
+                      Icons.check,
+                      color: Color.fromARGB(246, 81, 199, 128),
+                    ),
+                    onPressed: () async {
+                      var result =
+                          await _taskService.deleteTask(_taskList[index].id);
+                      if (result > 0) {
+                        getAllTasks();
+                      }
+                    },
                   ),
-                  onPressed: () async {
-                    var result =
-                        await _taskService.deleteTask(_taskList[index].id);
-                    if (result > 0) {
-                      getAllTasks();
-                    }
-                  },
                 ),
               ),
             ),
