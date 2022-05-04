@@ -32,6 +32,8 @@ class _CategoriesState extends State<Categories> {
     getAllCategories();
   }
 
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
+
   getAllCategories() async {
     _categoryList = List<Category>();
     var categories = await _categoryService.readCategories();
@@ -205,6 +207,7 @@ class _CategoriesState extends State<Categories> {
                     print(result);
                     Navigator.pop(context);
                     getAllCategories();
+                    _showSuccessSnackBar(Text('Updated'));
                   }
                 },
                 child: const Text(
@@ -220,9 +223,15 @@ class _CategoriesState extends State<Categories> {
         });
   }
 
+  _showSuccessSnackBar(message) {
+    var _snackBar = SnackBar(content: message);
+    _globalKey.currentState.showSnackBar(_snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _globalKey,
       backgroundColor: const Color.fromARGB(230, 253, 252, 252),
       drawer: DrawerMenu(),
       appBar: AppBar(
