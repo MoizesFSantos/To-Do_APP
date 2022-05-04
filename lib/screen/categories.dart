@@ -16,10 +16,16 @@ class _CategoriesState extends State<Categories> {
   var _categoryNameController = TextEditingController();
   var _categoryDescriptionController = TextEditingController();
 
+  var _editCategoryNameController = TextEditingController();
+  var _editCategoryDescriptionController = TextEditingController();
+
   var _category = Category();
   var _categoryService = CategoryService();
 
   List<Category> _categoryList = List<Category>();
+
+  var category;
+
   @override
   initState() {
     super.initState();
@@ -38,6 +44,16 @@ class _CategoriesState extends State<Categories> {
         _categoryList.add(categoryModel);
       });
     });
+  }
+
+  _editCategory(BuildContext context, categoryId) async {
+    category = await _categoryService.readCategoryById(categoryId);
+    setState(() {
+      _editCategoryNameController.text = category[0]['name'] ?? 'No Name';
+      _editCategoryDescriptionController.text =
+          category[0]['description'] ?? 'No Description';
+    });
+    _editFormDialog(context);
   }
 
   _showFormDialog(BuildContext context) {
@@ -119,6 +135,91 @@ class _CategoriesState extends State<Categories> {
         });
   }
 
+  _editFormDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+            title: const Text(
+              'Edit Category',
+              style: TextStyle(
+                color: Color.fromARGB(246, 81, 199, 128),
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Material(
+                    borderRadius: BorderRadius.circular(3),
+                    elevation: 3,
+                    child: TextField(
+                      controller: _editCategoryNameController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Category',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  Material(
+                    borderRadius: BorderRadius.circular(3),
+                    elevation: 3,
+                    child: TextField(
+                      controller: _editCategoryDescriptionController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Description',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 110, 110, 110),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              FlatButton(
+                onPressed: () async {
+                  _category.id = category[0]['id'];
+                  _category.name = _editCategoryNameController.text;
+                  _category.description =
+                      _editCategoryDescriptionController.text;
+                  var result = await _categoryService.updateCategory(_category);
+                  if (result > 0) {
+                    print(result);
+                    Navigator.pop(context);
+                    getAllCategories();
+                  }
+                },
+                child: const Text(
+                  'Update',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 81, 199, 128),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,7 +261,9 @@ class _CategoriesState extends State<Categories> {
                       Icons.edit,
                       color: Color.fromARGB(246, 81, 199, 128),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      _editCategory(context, _categoryList[index].id);
+                    },
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
