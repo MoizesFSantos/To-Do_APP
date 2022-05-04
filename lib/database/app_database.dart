@@ -23,7 +23,7 @@ class DatabaseConnection {
     //Create table categories
     await database.execute('''
       CREATE TABLE categories(
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         description TEXT
       )

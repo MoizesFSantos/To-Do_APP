@@ -122,7 +122,9 @@ class _CategoriesState extends State<Categories> {
                   _category.name = _categoryNameController.text;
                   _category.description = _categoryDescriptionController.text;
                   var result = await _categoryService.saveCategory(_category);
+                  Navigator.pop(context);
                   print(result);
+                  getAllCategories();
                 },
                 child: const Text(
                   'Save',
@@ -223,6 +225,54 @@ class _CategoriesState extends State<Categories> {
         });
   }
 
+  _deleteFormDialog(BuildContext context, categoryId) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+            title: const Text(
+              'Are you sure you want to delete this?',
+              style: TextStyle(
+                color: Color.fromARGB(246, 81, 199, 128),
+              ),
+            ),
+            actions: [
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 110, 110, 110),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              FlatButton(
+                onPressed: () async {
+                  var result =
+                      await _categoryService.deleteCategory(categoryId);
+                  if (result > 0) {
+                    print(result);
+                    Navigator.pop(context);
+                    getAllCategories();
+                    _showSuccessSnackBar(Text('Deleted'));
+                  }
+                },
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: Color.fromARGB(246, 81, 199, 128),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   _showSuccessSnackBar(message) {
     var _snackBar = SnackBar(content: message);
     _globalKey.currentState.showSnackBar(_snackBar);
@@ -286,7 +336,9 @@ class _CategoriesState extends State<Categories> {
                           Icons.delete,
                           color: Color.fromARGB(230, 66, 148, 99),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          _deleteFormDialog(context, _categoryList[index].id);
+                        },
                       )
                     ],
                   ),
