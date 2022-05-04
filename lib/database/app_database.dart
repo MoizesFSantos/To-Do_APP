@@ -14,10 +14,19 @@ class DatabaseConnection {
   _onCreatingDatabase(Database database, int version) async {
     await database.execute('''
   CREATE TABLE tasks (
-    id INTENGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     done INTENGER NOT NULL
   )
+''');
+
+    //Create table categories
+    await database.execute('''
+      CREATE TABLE categories(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        description TEXT
+      )
 ''');
   }
 }

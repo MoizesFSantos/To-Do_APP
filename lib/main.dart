@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:to_do/screen/categories.dart';
 import 'package:to_do/screen/home.dart';
 
 void main() {
@@ -10,11 +11,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-        ),
-        home: const Home());
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      initialRoute: '/home',
+      routes: {
+        '/home': (context) => const Home(),
+        '/categories': (context) => const Categories(),
+      },
+    );
   }
 }
