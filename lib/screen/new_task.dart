@@ -229,6 +229,7 @@ class _TaskState extends State<TaskScreen> {
                     var result = await _taskService.saveTask(taskObject);
                     if (result > 0) {
                       _showSuccessSnackBar(Text('Created'));
+                      getAllTasks();
                     }
                   },
                   color: sColor,
