@@ -14,7 +14,7 @@ class DatabaseConnection {
   _onCreatingDatabase(Database database, int version) async {
     await database.execute('''
   CREATE TABLE tasks (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     done INTENGER NOT NULL
   )
