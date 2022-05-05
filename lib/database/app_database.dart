@@ -16,7 +16,10 @@ class DatabaseConnection {
   CREATE TABLE tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    done INTENGER NOT NULL
+    description TEXT,
+    category TEXT,
+    taskDate TEXT,
+    isFinished INTEGER
   )
 ''');
 

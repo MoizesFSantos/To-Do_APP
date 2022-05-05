@@ -15,9 +15,9 @@ class _TaskState extends State<TaskScreen> {
   var taskObject = Task();
 
   final TextEditingController _taskTitleController = TextEditingController();
-  final TextEditingController taskDescriptionController =
+  final TextEditingController _taskDescriptionController =
       TextEditingController();
-  final TextEditingController taskDateController = TextEditingController();
+  final TextEditingController _taskDateController = TextEditingController();
 
   TaskService _taskService;
 
@@ -77,9 +77,14 @@ class _TaskState extends State<TaskScreen> {
     if (_pickedDate != null) {
       setState(() {
         _dateTime = _pickedDate;
-        taskDateController.text = DateFormat('dd-mm-yyyy').format(_pickedDate);
+        _taskDateController.text = DateFormat('EEE, d/M/y').format(_pickedDate);
       });
     }
+  }
+
+  _showSuccessSnackBar(message) {
+    var _snackBar = SnackBar(content: message);
+    _globalKey.currentState.showSnackBar(_snackBar);
   }
 
   @override
@@ -137,7 +142,7 @@ class _TaskState extends State<TaskScreen> {
                   borderRadius: BorderRadius.circular(3),
                   elevation: 3,
                   child: TextField(
-                    controller: taskDescriptionController,
+                    controller: _taskDescriptionController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       filled: true,
@@ -153,7 +158,7 @@ class _TaskState extends State<TaskScreen> {
                   borderRadius: BorderRadius.circular(3),
                   elevation: 3,
                   child: TextField(
-                    controller: taskDateController,
+                    controller: _taskDateController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         filled: true,
@@ -177,7 +182,7 @@ class _TaskState extends State<TaskScreen> {
                   borderRadius: BorderRadius.circular(3),
                   elevation: 3,
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: pColor,
                     ),
                     child: DropdownButtonFormField(
@@ -212,14 +217,18 @@ class _TaskState extends State<TaskScreen> {
                 ),
                 RaisedButton(
                   onPressed: () async {
+                    var taskObject = Task();
+
                     taskObject.title = _taskTitleController.text;
-                    taskObject.done = false;
+                    taskObject.description = _taskDescriptionController.text;
+                    taskObject.isFinished = 0;
+                    taskObject.category = _selectedValue.toString();
+                    taskObject.taskDate = _taskDateController.text;
+
                     var _taskService = TaskService();
                     var result = await _taskService.saveTask(taskObject);
                     if (result > 0) {
-                      print(result);
-                      Navigator.pop(context);
-                      getAllTasks();
+                      _showSuccessSnackBar(Text('Created'));
                     }
                   },
                   color: sColor,

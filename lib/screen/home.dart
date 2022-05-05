@@ -3,9 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:to_do/components/colors.dart';
 import 'package:to_do/components/drawer_menu.dart';
-import 'package:to_do/database/app_database.dart';
 import 'package:to_do/screen/new_task.dart';
-import 'package:to_do/service/categories_service.dart';
 import 'package:to_do/service/task_service.dart';
 import '../models/task.dart';
 
@@ -30,25 +28,7 @@ class _HomeState extends State<Home> {
   @override
   initState() {
     super.initState();
-    _loadCategories();
     getAllTasks();
-  }
-
-  var _selectedValue;
-
-  var _categories = List<DropdownMenuItem>();
-
-  _loadCategories() async {
-    var _categoryService = CategoryService();
-    var categories = await _categoryService.readCategories();
-    categories.forEach((category) {
-      setState(() {
-        _categories.add(DropdownMenuItem(
-          child: Text(category['name']),
-          value: category['name'],
-        ));
-      });
-    });
   }
 
   getAllTasks() async {
@@ -61,6 +41,10 @@ class _HomeState extends State<Home> {
         var model = Task();
         model.id = task['id'];
         model.title = task['title'];
+        model.description = task['description'];
+        model.category = task['category'];
+        model.taskDate = task['taskDate'];
+        model.isFinished = task['isFinished'];
         _taskList.add(model);
       });
     });
@@ -163,20 +147,8 @@ class _HomeState extends State<Home> {
                     _taskList[index].title ?? 'no Title',
                     style: TextStyle(fontSize: 20.0),
                   ),
-                  subtitle: const Text('test'),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.check,
-                      color: pColor,
-                    ),
-                    onPressed: () {
-                      var result =
-                          _deleteFormDialog(context, _taskList[index].id);
-                      if (result > 0) {
-                        getAllTasks();
-                      }
-                    },
-                  ),
+                  subtitle: Text(_taskList[index].category ?? 'no category'),
+                  trailing: Text(_taskList[index].taskDate ?? 'no date'),
                 ),
               ),
             ),
