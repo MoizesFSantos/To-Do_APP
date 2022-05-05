@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_final_fields
 
 import 'package:flutter/material.dart';
+import 'package:to_do/components/colors.dart';
 import 'package:to_do/components/drawer_menu.dart';
 import 'package:to_do/models/category.dart';
 import 'package:to_do/service/categories_service.dart';
@@ -282,7 +283,7 @@ class _CategoriesState extends State<Categories> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _globalKey,
-      backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+      backgroundColor: bgColor,
       drawer: DrawerMenu(),
       appBar: AppBar(
         leading: Builder(
@@ -290,7 +291,7 @@ class _CategoriesState extends State<Categories> {
             return IconButton(
               icon: const Icon(
                 Icons.menu,
-                color: Color.fromARGB(213, 81, 199, 128),
+                color: pColor,
                 size: 30,
               ),
               onPressed: () {
@@ -302,7 +303,7 @@ class _CategoriesState extends State<Categories> {
         centerTitle: true,
         title: const Text(
           'CATEGORIES',
-          style: TextStyle(color: Color.fromARGB(246, 81, 199, 128)),
+          style: TextStyle(color: pColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -318,7 +319,7 @@ class _CategoriesState extends State<Categories> {
                   leading: IconButton(
                     icon: const Icon(
                       Icons.edit,
-                      color: Color.fromARGB(246, 81, 199, 128),
+                      color: pColor,
                     ),
                     onPressed: () {
                       _editCategory(context, _categoryList[index].id);
@@ -334,7 +335,7 @@ class _CategoriesState extends State<Categories> {
                       IconButton(
                         icon: const Icon(
                           Icons.delete,
-                          color: Color.fromARGB(230, 66, 148, 99),
+                          color: sColor,
                         ),
                         onPressed: () {
                           _deleteFormDialog(context, _categoryList[index].id);
@@ -348,7 +349,7 @@ class _CategoriesState extends State<Categories> {
             );
           }),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(246, 81, 199, 128),
+        backgroundColor: pColor,
         child: const Icon(Icons.add),
         onPressed: () {
           _showFormDialog(context);

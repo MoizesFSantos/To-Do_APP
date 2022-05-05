@@ -1,8 +1,10 @@
 // ignore_for_file: deprecated_member_use, prefer_collection_literals
 
 import 'package:flutter/material.dart';
+import 'package:to_do/components/colors.dart';
 import 'package:to_do/components/drawer_menu.dart';
 import 'package:to_do/database/app_database.dart';
+import 'package:to_do/screen/new_task.dart';
 import 'package:to_do/service/categories_service.dart';
 import 'package:to_do/service/task_service.dart';
 import '../models/task.dart';
@@ -64,106 +66,17 @@ class _HomeState extends State<Home> {
     });
   }
 
-  _showFormDialog(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          backgroundColor: const Color.fromARGB(230, 253, 252, 252),
-          title: const Text(
-            'New Task',
-            style: TextStyle(
-              color: Color.fromARGB(246, 81, 199, 128),
-            ),
-          ),
-          content: Material(
-            borderRadius: BorderRadius.circular(3),
-            elevation: 3,
-            child: TextField(
-              controller: _taskTitleController,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'task...',
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: Color.fromARGB(246, 81, 199, 128),
-                  ),
-                  child: DropdownButton(
-                    value: _selectedValue,
-                    items: _categories,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedValue = value;
-                      });
-                    },
-                    dropdownColor: Color.fromARGB(246, 81, 199, 128),
-                    hint: const Text(
-                      'Category',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    elevation: 8,
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                FlatButton(
-                  onPressed: () async {
-                    taskObject.title = _taskTitleController.text;
-                    taskObject.done = false;
-                    var _taskService = TaskService();
-                    var result = await _taskService.saveTask(taskObject);
-                    if (result > 0) {
-                      print(result);
-                      Navigator.pop(context);
-                      getAllTasks();
-                    }
-                  },
-                  child: const Text(
-                    'Add',
-                    style: TextStyle(
-                      color: Color.fromARGB(246, 81, 199, 128),
-                      fontSize: 16,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   _deleteFormDialog(BuildContext context, taskId) {
     return showDialog(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+            backgroundColor: bgColor,
             title: const Text(
               'have you finished this task?',
               style: TextStyle(
-                color: Color.fromARGB(246, 81, 199, 128),
+                color: pColor,
               ),
             ),
             actions: [
@@ -172,7 +85,7 @@ class _HomeState extends State<Home> {
                 child: const Text(
                   'Cancel',
                   style: TextStyle(
-                    color: Color.fromARGB(246, 110, 110, 110),
+                    color: tColor,
                     fontSize: 16,
                   ),
                 ),
@@ -190,7 +103,7 @@ class _HomeState extends State<Home> {
                 child: const Text(
                   'Done',
                   style: TextStyle(
-                    color: Color.fromARGB(246, 81, 199, 128),
+                    color: pColor,
                     fontSize: 16,
                   ),
                 ),
@@ -209,7 +122,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _globalKey,
-      backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+      backgroundColor: bgColor,
       drawer: DrawerMenu(),
       appBar: AppBar(
         leading: Builder(
@@ -217,7 +130,7 @@ class _HomeState extends State<Home> {
             return IconButton(
               icon: const Icon(
                 Icons.menu,
-                color: Color.fromARGB(213, 81, 199, 128),
+                color: pColor,
                 size: 30,
               ),
               onPressed: () {
@@ -229,7 +142,7 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         title: const Text(
           'HOME',
-          style: TextStyle(color: Color.fromARGB(246, 81, 199, 128)),
+          style: TextStyle(color: pColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -254,7 +167,7 @@ class _HomeState extends State<Home> {
                   trailing: IconButton(
                     icon: const Icon(
                       Icons.check,
-                      color: Color.fromARGB(246, 81, 199, 128),
+                      color: pColor,
                     ),
                     onPressed: () {
                       var result =
@@ -272,10 +185,12 @@ class _HomeState extends State<Home> {
         itemCount: _taskList.length,
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(246, 81, 199, 128),
-        onPressed: () {
-          _showFormDialog(context);
-        },
+        backgroundColor: pColor,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => TaskScreen(),
+          ),
+        ),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
