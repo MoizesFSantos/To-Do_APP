@@ -1,8 +1,9 @@
 // ignore_for_file: deprecated_member_use, prefer_collection_literals
 
 import 'package:flutter/material.dart';
+import 'package:to_do/components/colors.dart';
 import 'package:to_do/components/drawer_menu.dart';
-import 'package:to_do/database/app_database.dart';
+import 'package:to_do/screen/new_task.dart';
 import 'package:to_do/service/task_service.dart';
 import '../models/task.dart';
 
@@ -22,6 +23,8 @@ class _HomeState extends State<Home> {
 
   List<Task> _taskList = List<Task>();
 
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
+
   @override
   initState() {
     super.initState();
@@ -38,68 +41,72 @@ class _HomeState extends State<Home> {
         var model = Task();
         model.id = task['id'];
         model.title = task['title'];
+        model.description = task['description'];
+        model.category = task['category'];
+        model.taskDate = task['taskDate'];
+        model.isFinished = task['isFinished'];
         _taskList.add(model);
       });
     });
   }
 
-  _showFormDialog(BuildContext context) {
+  _deleteFormDialog(BuildContext context, taskId) {
     return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          backgroundColor: const Color.fromARGB(230, 253, 252, 252),
-          title: const Text(
-            'New Task',
-            style: TextStyle(
-              color: Color.fromARGB(246, 81, 199, 128),
-            ),
-          ),
-          content: Material(
-            borderRadius: BorderRadius.circular(3),
-            elevation: 3,
-            child: TextField(
-              controller: _taskTitleController,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'task...',
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: bgColor,
+            title: const Text(
+              'have you finished this task?',
+              style: TextStyle(
+                color: pColor,
               ),
             ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () async {
-                taskObject.title = _taskTitleController.text;
-                taskObject.done = false;
-                var _taskService = TaskService();
-                var result = await _taskService.saveTask(taskObject);
-                if (result > 0) {
-                  print(result);
-                  Navigator.pop(context);
-                  getAllTasks();
-                }
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(
-                  color: Color.fromARGB(246, 81, 199, 128),
-                  fontSize: 16,
+            actions: [
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: tColor,
+                    fontSize: 16,
+                  ),
                 ),
               ),
-            )
-          ],
-        );
-      },
-    );
+              FlatButton(
+                onPressed: () async {
+                  var result = await _taskService.deleteTask(taskId);
+                  if (result > 0) {
+                    print(result);
+                    Navigator.pop(context);
+                    getAllTasks();
+                    _showSuccessSnackBar(Text('Done!'));
+                  }
+                },
+                child: const Text(
+                  'Done',
+                  style: TextStyle(
+                    color: pColor,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  _showSuccessSnackBar(message) {
+    var _snackBar = SnackBar(content: message);
+    _globalKey.currentState.showSnackBar(_snackBar);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(230, 253, 252, 252),
+      key: _globalKey,
+      backgroundColor: bgColor,
       drawer: DrawerMenu(),
       appBar: AppBar(
         leading: Builder(
@@ -107,7 +114,7 @@ class _HomeState extends State<Home> {
             return IconButton(
               icon: const Icon(
                 Icons.menu,
-                color: Color.fromARGB(213, 81, 199, 128),
+                color: pColor,
                 size: 30,
               ),
               onPressed: () {
@@ -119,7 +126,7 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         title: const Text(
           'HOME',
-          style: TextStyle(color: Color.fromARGB(246, 81, 199, 128)),
+          style: TextStyle(color: pColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -128,8 +135,7 @@ class _HomeState extends State<Home> {
         itemBuilder: (context, index) {
           return Dismissible(
             onDismissed: (direction) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${_taskList[index].title} is done')));
+              _deleteFormDialog(context, _taskList[index].id);
             },
             key: Key(_taskList[index].title),
             child: Padding(
@@ -137,21 +143,12 @@ class _HomeState extends State<Home> {
               child: Card(
                 elevation: 6.0,
                 child: ListTile(
-                  title: Text(_taskList[index].title ?? 'no Title'),
-                  subtitle: const Text('test'),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.check,
-                      color: Color.fromARGB(246, 81, 199, 128),
-                    ),
-                    onPressed: () async {
-                      var result =
-                          await _taskService.deleteTask(_taskList[index].id);
-                      if (result > 0) {
-                        getAllTasks();
-                      }
-                    },
+                  title: Text(
+                    _taskList[index].title ?? 'no Title',
+                    style: TextStyle(fontSize: 20.0),
                   ),
+                  subtitle: Text(_taskList[index].category ?? 'no category'),
+                  trailing: Text(_taskList[index].taskDate ?? 'no date'),
                 ),
               ),
             ),
@@ -160,10 +157,12 @@ class _HomeState extends State<Home> {
         itemCount: _taskList.length,
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(246, 81, 199, 128),
-        onPressed: () {
-          _showFormDialog(context);
-        },
+        backgroundColor: pColor,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => TaskScreen(),
+          ),
+        ),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
